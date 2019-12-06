@@ -7,6 +7,7 @@ public class IntegrationTestDatabase {
     private DatabaseContainer databaseContainer;
 
     private DatabaseVendor databaseVendor;
+    private String initScriptPath;
     private String databaseName;
     private String username;
     private String password;
@@ -31,6 +32,12 @@ public class IntegrationTestDatabase {
         return this;
     }
 
+    public IntegrationTestDatabase withInitScript(final String initScriptPath) {
+
+        this.initScriptPath = initScriptPath;
+        return this;
+    }
+
     public IntegrationTestDatabase withDatabaseName(final String databaseName) {
 
         this.databaseName = databaseName;
@@ -52,6 +59,11 @@ public class IntegrationTestDatabase {
     public DatabaseContainer getDatabaseContainer() {
 
         return this.databaseContainer;
+    }
+
+    public String getInitScriptPath() {
+
+        return initScriptPath;
     }
 
     DatabaseVendor getDatabaseVendor() {

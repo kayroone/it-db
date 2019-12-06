@@ -14,6 +14,7 @@ public class DatabaseContainer {
         if (DatabaseVendor.POSTGRESQL == config.getDatabaseVendor()) {
 
             CONTAINER = new PostgreSQLContainer(config.getDatabaseVendor().getImageName())
+                    .withInitScript(config.getInitScriptPath())
                     .withDatabaseName(config.getDatabaseName())
                     .withUsername(config.getUsername())
                     .withPassword(config.getPassword());
@@ -21,12 +22,16 @@ public class DatabaseContainer {
         } else if (DatabaseVendor.MYSQL == config.getDatabaseVendor()) {
 
             CONTAINER = new MySQLContainer(config.getDatabaseVendor().getImageName())
+                    .withInitScript(config.getInitScriptPath())
                     .withDatabaseName(config.getDatabaseName())
                     .withUsername(config.getUsername())
                     .withPassword(config.getPassword());
         }
 
-        /* Create global connection pool */
-        DatabaseController.newConnectionPool(CONTAINER);
+        /* Start container and connection pool */
+        if (null != CONTAINER) {
+            CONTAINER.start();
+            DatabaseController.newConnectionPool(CONTAINER);
+        }
     }
 }
