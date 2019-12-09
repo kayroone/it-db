@@ -1,19 +1,20 @@
 package application.dataset;
 
-import application.database.IntegrationTestDatabase;
+import application.database.DatabaseController;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Optional;
 
 class TestDataSetProcessor implements BeforeEachCallback {
@@ -33,34 +34,43 @@ class TestDataSetProcessor implements BeforeEachCallback {
 
         /* Clean before executing new statements */
         if (testDataSet.cleanBefore()) {
-            IntegrationTestDatabase.cleanDatabase();
+            DatabaseController.getInstance().cleanDatabase();
         }
 
-        /* Parse and execute valid SQL statements */
+        /* Parse and execute only valid SQL statements */
         this.parseDataSetFile(testDataSet.file());
     }
 
     private void parseDataSetFile(final String testDataSetFile) {
 
-        try (FileInputStream fileInputStream = new FileInputStream(testDataSetFile)) {
+        try (InputStream fileInputStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(testDataSetFile)) {
+
+            if (null == fileInputStream) {
+                LOG.warn("Dataset {} not found. Not parsing file.", testDataSetFile);
+                return;
+            }
+
+            Connection connection = DatabaseController.getInstance().getConnection();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
 
             String strLine;
             while (null != (strLine = bufferedReader.readLine())) {
 
-                Statement statement;
                 try {
-                    statement = CCJSqlParserUtil.parse(strLine);
+                    String statement = CCJSqlParserUtil.parse(strLine).toString();
+                    DatabaseController.getInstance().executeQuery(statement, connection);
                 } catch (JSQLParserException e) {
                     LOG.warn("Invalid SQL syntax for statement '{}'. Skipping line.", strLine);
-                    continue;
                 }
-
-                IntegrationTestDatabase.executeSqlStatement(statement);
             }
 
+            connection.close();
+
         } catch (IOException e) {
-            LOG.warn("Dataset {} not found/broken. Not parsing file.", testDataSetFile);
+            LOG.error("Dataset {} broken. Not parsing file.", testDataSetFile);
+        } catch (SQLException e) {
+            LOG.error("Failed to establish database connection. Aborting.");
         }
     }
 }
