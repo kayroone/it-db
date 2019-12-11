@@ -54,9 +54,9 @@ class TestDataSetProcessor implements BeforeEachCallback {
             Connection connection = DatabaseController.getInstance().getConnection();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
 
+            /* Parse and execute statement */
             String strLine;
             while (null != (strLine = bufferedReader.readLine())) {
-
                 try {
                     String statement = CCJSqlParserUtil.parse(strLine).toString();
                     DatabaseController.getInstance().executeQuery(statement, connection);

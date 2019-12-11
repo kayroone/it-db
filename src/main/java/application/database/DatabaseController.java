@@ -2,6 +2,7 @@ package application.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import domain.result.Result;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
@@ -12,6 +13,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -53,28 +55,70 @@ public class DatabaseController {
         return INSTANCE;
     }
 
-    public void executeQuery(final String queryString) {
+    public Connection getConnection() throws SQLException {
+
+        return this.dataSource.getConnection();
+    }
+
+    public void shutdown() {
+
+        if (this.dataSource.isRunning()) {
+            this.dataSource.close();
+        }
+        if (this.container.isRunning()) {
+            this.container.stop();
+        }
+
+        INSTANCE = null;
+    }
+
+    public Result executeQuery(final String query) {
+
+        Result result = new Result();
 
         try (Connection dbConnection = this.dataSource.getConnection()) {
 
-            Statement query = CCJSqlParserUtil.parse(queryString);
-            PreparedStatement statement = dbConnection.prepareStatement(query.toString());
-            statement.execute();
+            ResultSet resultSet = this.executeQuery(query, dbConnection);
+            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
+            final int columnCount = resultSetMetaData.getColumnCount();
+
+            /* Extract each row */
+            while (resultSet.next()) {
+                Object[] values = new Object[columnCount];
+                for (int i = 1; i <= columnCount; i++) {
+                    values[i - 1] = resultSet.getObject(i);
+                }
+                result.addRow(values);
+            }
 
         } catch (SQLException | JSQLParserException e) {
-            LOG.error("Failed to execute statement '{}' with error {}", queryString, e.getMessage());
+            LOG.error("Cleanup error. Failed to fetch table names: {}", e.getMessage());
         }
+
+        return result;
     }
 
-    public ResultSet executeQuery(final String queryString, final Connection dbConnection)
+    /**
+     * Execute an SQL query on the running database container.
+     * <p>
+     * WARN: This method does not close the given database connection!
+     *
+     * @param query        The SQL query as string.
+     * @param dbConnection A active database connection.
+     * @return {@link ResultSet} containing the query rows if any.
+     * @throws JSQLParserException For invalid SQL syntax.
+     * @throws SQLException        For an invalid database connection.
+     */
+    public ResultSet executeQuery(final String query, final Connection dbConnection)
             throws JSQLParserException, SQLException {
 
-        Statement query = CCJSqlParserUtil.parse(queryString);
+        Statement statement = CCJSqlParserUtil.parse(query);
 
-        PreparedStatement statement = dbConnection.prepareStatement(query.toString());
-        statement.execute();
+        PreparedStatement preparedStatement = dbConnection.prepareStatement(statement.toString());
+        preparedStatement.execute();
 
-        return statement.getResultSet();
+        return preparedStatement.getResultSet();
     }
 
     public void cleanDatabase() {
@@ -101,17 +145,6 @@ public class DatabaseController {
         } catch (SQLException | JSQLParserException e) {
             LOG.error("Cleanup error. Failed to fetch table names: {}", e.getMessage());
         }
-    }
-
-    public Connection getConnection() throws SQLException {
-
-        return this.dataSource.getConnection();
-    }
-
-    public void shutdown() {
-
-        this.dataSource.close();
-        INSTANCE = null;
     }
 
     private String getTablesQuery() {

@@ -1,6 +1,6 @@
 package application.database;
 
-import domain.DatabaseVendor;
+import domain.database.DatabaseVendor;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.PostgreSQLContainer;

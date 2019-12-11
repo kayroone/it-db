@@ -1,16 +1,12 @@
-import application.database.DatabaseController;
 import application.database.Initialize;
 import application.database.IntegrationTestDatabase;
 import application.dataset.TestDataSet;
-import domain.DatabaseVendor;
-import net.sf.jsqlparser.JSQLParserException;
+import domain.database.DatabaseVendor;
+import domain.result.Result;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class IntegrationTestPostgresDatabaseIT {
 
@@ -24,29 +20,18 @@ public class IntegrationTestPostgresDatabaseIT {
             .build();
 
     @Test
-    public void executeSelectStatement() throws SQLException, JSQLParserException {
+    public void executeSelectStatement() {
 
-        Connection connection = DatabaseController.getInstance().getConnection();
-        ResultSet resultSet = DatabaseController.getInstance().executeQuery("SELECT 1", connection);
+        Result result = integrationTestDatabase.executeQuery("SELECT 1");
 
-        resultSet.next();
-        assertEquals(resultSet.getInt(1), 1);
-
-        connection.close();
+        assertEquals(result.getRow(0).get(0), "1");
     }
 
     @TestDataSet(file = "datasets/test-insert.sql", cleanBefore = true)
-    public void executeInsertStatement() throws SQLException, JSQLParserException {
+    public void executeInsertStatement() {
 
-        Connection connection = DatabaseController.getInstance().getConnection();
-        ResultSet resultSet = DatabaseController.getInstance().executeQuery("SELECT * FROM test_table", connection);
+        Result result = integrationTestDatabase.executeQuery("SELECT * FROM test_table");
 
-        while (resultSet.next()) {
-            System.out.println(resultSet.getString(1));
-            System.out.println(resultSet.getString(2));
-            System.out.println(resultSet.getString(3));
-        }
-
-        connection.close();
+        assertFalse(result.getRow(0).isEmpty());
     }
 }

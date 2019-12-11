@@ -1,6 +1,7 @@
 package application.database;
 
-import domain.DatabaseVendor;
+import domain.database.DatabaseVendor;
+import domain.result.Result;
 
 public class IntegrationTestDatabase {
 
@@ -54,6 +55,11 @@ public class IntegrationTestDatabase {
 
         this.password = password;
         return this;
+    }
+
+    public Result executeQuery(final String query) {
+
+        return DatabaseController.getInstance().executeQuery(query);
     }
 
     public DatabaseContainer getDatabaseContainer() {

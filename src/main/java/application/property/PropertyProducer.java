@@ -26,6 +26,7 @@ public class PropertyProducer {
     public void init() {
 
         if (PropertyProducer.properties == null) {
+            properties = new Properties();
             this.loadProperties();
         }
     }
@@ -62,8 +63,6 @@ public class PropertyProducer {
     }
 
     private void loadProperties() {
-
-        properties = new Properties();
 
         try (FileInputStream fileInputStream = new FileInputStream(PROPERTY_FILE_PATH)) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
