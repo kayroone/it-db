@@ -19,11 +19,13 @@
 
         <version.postgres>42.2.8</version.postgres>
         <version.cdi-api>2.0.SP1</version.cdi-api>
+        <version.apache-commons-lang>3.9</version.apache-commons-lang>
         <version.testcontainers>1.12.3</version.testcontainers>
         <version.junit>5.6.0-M1</version.junit>
         <version.jsql-parser>3.1</version.jsql-parser>
         <version.assertj>3.14.0</version.assertj>
         <version.mockito>3.1.0</version.mockito>
+        <version.mockito-junit-5>2.23.0</version.mockito-junit-5>
         <version.hibernate-validator>6.1.0.Final</version.hibernate-validator>
         <version.hikari-db-connection-pool>3.4.1</version.hikari-db-connection-pool>
 
@@ -42,6 +44,11 @@
             <artifactId>cdi-api</artifactId>
             <version>${version.cdi-api}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${version.apache-commons-lang}</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -87,6 +94,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${version.mockito-junit-5}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${version.hikari-db-connection-pool}</version>
@@ -96,6 +109,13 @@
             <artifactId>hibernate-validator</artifactId>
             <version>${version.hibernate-validator}</version>
         </dependency>
+
+        <dependency>
+            <groupId>javax.ejb</groupId>
+            <artifactId>javax.ejb-api</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -1,8 +1,9 @@
-import application.database.Initialize;
 import application.database.IntegrationTestDatabase;
 import application.dataset.TestDataSet;
-import domain.database.DatabaseVendor;
+import application.property.PropertyProducer;
 import domain.result.Result;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,14 +11,27 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class IntegrationTestPostgresDatabaseIT {
 
-    @Initialize
-    private IntegrationTestDatabase integrationTestDatabase = IntegrationTestDatabase.newDatabaseContainer()
-            .withDatabaseVendor(DatabaseVendor.POSTGRESQL)
-            .withInitScript("datasets/init.sql")
-            .withDatabaseName("test")
-            .withUsername("test")
-            .withPassword("test")
-            .build();
+    private static IntegrationTestDatabase integrationTestDatabase;
+
+    @BeforeAll
+    public static void setUp() throws IllegalAccessException {
+
+        /* Init singleton property producer */
+        new PropertyProducer().init();
+
+        integrationTestDatabase = IntegrationTestDatabase.newPostgresContainer();
+
+        /* Inject mandatory properties */
+        FieldUtils.writeField(integrationTestDatabase, "imageName",
+                PropertyProducer.getPropertyValueAsString("database.image.name"), true);
+
+        /* Build test container for this test */
+        integrationTestDatabase.withInitScript("datasets/init.sql")
+                .withDatabaseName("test")
+                .withUsername("test")
+                .withPassword("test")
+                .build();
+    }
 
     @Test
     public void executeSelectStatement() {

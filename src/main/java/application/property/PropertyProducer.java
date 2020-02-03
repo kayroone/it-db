@@ -4,7 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Annotated;
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -14,7 +15,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
-@ApplicationScoped
+@Startup
+@Singleton
 public class PropertyProducer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertyProducer.class);
@@ -32,7 +34,7 @@ public class PropertyProducer {
     }
 
     @Produces
-    public String getPropertyValue(final InjectionPoint ip) {
+    public String getPropertyValueAsString(final InjectionPoint ip) {
 
         final String key = this.getConfigKeyFromAnnotatedField(ip.getAnnotated());
 
@@ -52,9 +54,14 @@ public class PropertyProducer {
         }
     }
 
-    public static String getPropertyValue(final String key) {
+    public static String getPropertyValueAsString(final String key) {
 
         return PropertyProducer.properties.getProperty(key);
+    }
+
+    public static Integer getPropertyValueAsInt(final String key) {
+
+        return Integer.valueOf(PropertyProducer.properties.getProperty(key));
     }
 
     private String getConfigKeyFromAnnotatedField(final Annotated annotated) {

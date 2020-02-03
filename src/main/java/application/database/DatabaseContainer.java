@@ -13,7 +13,7 @@ public class DatabaseContainer {
 
         if (DatabaseVendor.POSTGRESQL == config.getDatabaseVendor()) {
 
-            CONTAINER = new PostgreSQLContainer(config.getDatabaseVendor().getImageName())
+            CONTAINER = new PostgreSQLContainer(config.getImageName())
                     .withInitScript(config.getInitScriptPath())
                     .withDatabaseName(config.getDatabaseName())
                     .withUsername(config.getUsername())
@@ -21,7 +21,7 @@ public class DatabaseContainer {
 
         } else if (DatabaseVendor.MYSQL == config.getDatabaseVendor()) {
 
-            CONTAINER = new MySQLContainer(config.getDatabaseVendor().getImageName())
+            CONTAINER = new MySQLContainer(config.getImageName())
                     .withInitScript(config.getInitScriptPath())
                     .withDatabaseName(config.getDatabaseName())
                     .withUsername(config.getUsername())

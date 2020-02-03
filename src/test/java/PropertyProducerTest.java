@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PropertyProducerTest {
 
-    private static final String testPropertyKey = "psql.image.name";
+    private static final String testPropertyKey = "database.image.name";
     private static final String testPropertyValue = "postgres/latest";
 
     @BeforeAll
@@ -19,7 +19,7 @@ public class PropertyProducerTest {
     @Test
     public void executeTestInsertStatement() {
 
-        String propertyValue = PropertyProducer.getPropertyValue(testPropertyKey);
+        String propertyValue = PropertyProducer.getPropertyValueAsString(testPropertyKey);
 
         assertNotNull(propertyValue);
         assertEquals(propertyValue, testPropertyValue);

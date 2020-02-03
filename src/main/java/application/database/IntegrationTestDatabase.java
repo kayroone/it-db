@@ -1,35 +1,66 @@
 package application.database;
 
+import application.property.Property;
 import domain.database.DatabaseVendor;
 import domain.result.Result;
+
+import javax.inject.Inject;
 
 public class IntegrationTestDatabase {
 
     private DatabaseContainer databaseContainer;
 
     private DatabaseVendor databaseVendor;
+
+    @Inject
+    @Property(key = "database.image.name")
+    private String imageName;
+
+    @Inject
+    @Property(key = "database.port.number")
+    private Integer port;
+
+    @Inject
+    @Property(key = "database.bind.address")
+    private String bindAddress;
+
+    @Inject
+    @Property(key = "database.init.script")
     private String initScriptPath;
+
+    @Inject
+    @Property(key = "database.name")
     private String databaseName;
+
+    @Inject
+    @Property(key = "database.username")
     private String username;
+
+    @Inject
+    @Property(key = "database.password")
     private String password;
 
     private IntegrationTestDatabase() {
     }
 
-    public static IntegrationTestDatabase newDatabaseContainer() {
+    private IntegrationTestDatabase(final DatabaseVendor databaseVendor) {
 
-        return new IntegrationTestDatabase();
+        this.databaseVendor = databaseVendor;
+    }
+
+    public static IntegrationTestDatabase newPostgresContainer() {
+
+        return new IntegrationTestDatabase(DatabaseVendor.POSTGRESQL);
+    }
+
+    public static IntegrationTestDatabase newMySqlContainer() {
+
+        return new IntegrationTestDatabase(DatabaseVendor.MYSQL);
     }
 
     public IntegrationTestDatabase build() {
 
         this.databaseContainer = new DatabaseContainer(this);
-        return this;
-    }
-
-    public IntegrationTestDatabase withDatabaseVendor(final DatabaseVendor databaseVendor) {
-
-        this.databaseVendor = databaseVendor;
         return this;
     }
 
@@ -57,38 +88,53 @@ public class IntegrationTestDatabase {
         return this;
     }
 
-    public Result executeQuery(final String query) {
-
-        return DatabaseController.getInstance().executeQuery(query);
-    }
-
     public DatabaseContainer getDatabaseContainer() {
 
         return this.databaseContainer;
     }
 
-    public String getInitScriptPath() {
-
-        return initScriptPath;
-    }
-
-    DatabaseVendor getDatabaseVendor() {
+    public DatabaseVendor getDatabaseVendor() {
 
         return this.databaseVendor;
     }
 
-    String getDatabaseName() {
+    public String getImageName() {
+
+        return this.imageName;
+    }
+
+    public int getPort() {
+
+        return this.port;
+    }
+
+    public String getBindAddress() {
+
+        return this.bindAddress;
+    }
+
+    public String getInitScriptPath() {
+
+        return this.initScriptPath;
+    }
+
+    public String getDatabaseName() {
 
         return this.databaseName;
     }
 
-    String getUsername() {
+    public String getUsername() {
 
         return this.username;
     }
 
-    String getPassword() {
+    public String getPassword() {
 
         return this.password;
+    }
+
+    public Result executeQuery(final String query) {
+
+        return DatabaseController.getInstance().executeQuery(query);
     }
 }
