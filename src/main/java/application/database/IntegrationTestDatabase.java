@@ -3,6 +3,7 @@ package application.database;
 import application.property.Property;
 import domain.database.DatabaseVendor;
 import domain.result.Result;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import javax.inject.Inject;
 
@@ -88,9 +89,9 @@ public class IntegrationTestDatabase {
         return this;
     }
 
-    public DatabaseContainer getDatabaseContainer() {
+    public JdbcDatabaseContainer getDatabaseContainer() {
 
-        return this.databaseContainer;
+        return this.databaseContainer.getContainer();
     }
 
     public DatabaseVendor getDatabaseVendor() {
@@ -133,8 +134,8 @@ public class IntegrationTestDatabase {
         return this.password;
     }
 
-    public Result executeQuery(final String query) {
+    public Result executeStatement(final String statement) {
 
-        return DatabaseController.getInstance().executeQuery(query);
+        return DatabaseController.getInstance().executeStatement(statement);
     }
 }

@@ -7,13 +7,13 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 public class DatabaseContainer {
 
-    private JdbcDatabaseContainer CONTAINER;
+    private JdbcDatabaseContainer container;
 
     public DatabaseContainer(final IntegrationTestDatabase config) {
 
         if (DatabaseVendor.POSTGRESQL == config.getDatabaseVendor()) {
 
-            CONTAINER = new PostgreSQLContainer(config.getImageName())
+            container = new PostgreSQLContainer(config.getImageName())
                     .withInitScript(config.getInitScriptPath())
                     .withDatabaseName(config.getDatabaseName())
                     .withUsername(config.getUsername())
@@ -21,17 +21,22 @@ public class DatabaseContainer {
 
         } else if (DatabaseVendor.MYSQL == config.getDatabaseVendor()) {
 
-            CONTAINER = new MySQLContainer(config.getImageName())
+            container = new MySQLContainer(config.getImageName())
                     .withInitScript(config.getInitScriptPath())
                     .withDatabaseName(config.getDatabaseName())
                     .withUsername(config.getUsername())
                     .withPassword(config.getPassword());
         }
 
-        /* Start container and connection pool */
-        if (null != CONTAINER) {
-            CONTAINER.start();
-            DatabaseController.newConnectionPool(CONTAINER);
+        /* Start container and initiate controller with connection pool */
+        if (null != container) {
+            container.start();
+            DatabaseController.newInstance(container);
         }
+    }
+
+    public JdbcDatabaseContainer getContainer() {
+
+        return this.container;
     }
 }

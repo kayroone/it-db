@@ -51,7 +51,7 @@ class TestDataSetProcessor implements BeforeEachCallback {
                 return;
             }
 
-            Connection connection = DatabaseController.getInstance().getConnection();
+            Connection connection = DatabaseController.getInstance().getDatabaseConnection();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
 
             /* Parse and execute statement */
@@ -59,7 +59,7 @@ class TestDataSetProcessor implements BeforeEachCallback {
             while (null != (strLine = bufferedReader.readLine())) {
                 try {
                     String statement = CCJSqlParserUtil.parse(strLine).toString();
-                    DatabaseController.getInstance().executeQuery(statement, connection);
+                    DatabaseController.getInstance().executeStatement(statement, connection);
                 } catch (JSQLParserException e) {
                     LOG.warn("Invalid SQL syntax for statement '{}'. Skipping line.", strLine);
                 }
