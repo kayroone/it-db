@@ -1,15 +1,21 @@
-package application.database;
+package application;
 
+import application.container.ContainerNotRunningException;
+import application.database.DatabaseController;
 import application.property.Property;
 import domain.database.DatabaseVendor;
 import domain.result.Result;
-import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 
 public class IntegrationTestDatabase {
 
-    private DatabaseContainer databaseContainer;
+    private final static String DEFAULT_DATABASE_NAME = "test";
+    private final static String DEFAULT_USERNAME = "test";
+    private final static String DEFAULT_PASSWORD = "test";
+
+    private DatabaseController databaseController;
 
     private DatabaseVendor databaseVendor;
 
@@ -41,7 +47,7 @@ public class IntegrationTestDatabase {
     @Property(key = "database.password")
     private String password;
 
-    private IntegrationTestDatabase() {
+    public IntegrationTestDatabase() {
     }
 
     private IntegrationTestDatabase(final DatabaseVendor databaseVendor) {
@@ -59,9 +65,9 @@ public class IntegrationTestDatabase {
         return new IntegrationTestDatabase(DatabaseVendor.MYSQL);
     }
 
-    public IntegrationTestDatabase build() {
+    public IntegrationTestDatabase build() throws ContainerNotRunningException {
 
-        this.databaseContainer = new DatabaseContainer(this);
+        this.databaseController = DatabaseController.createInstance(this);
         return this;
     }
 
@@ -89,11 +95,6 @@ public class IntegrationTestDatabase {
         return this;
     }
 
-    public JdbcDatabaseContainer getDatabaseContainer() {
-
-        return this.databaseContainer.getContainer();
-    }
-
     public DatabaseVendor getDatabaseVendor() {
 
         return this.databaseVendor;
@@ -101,7 +102,7 @@ public class IntegrationTestDatabase {
 
     public String getImageName() {
 
-        return this.imageName;
+        return StringUtils.defaultIfEmpty(this.imageName, this.databaseVendor.getImageName());
     }
 
     public int getPort() {
@@ -116,26 +117,26 @@ public class IntegrationTestDatabase {
 
     public String getInitScriptPath() {
 
-        return this.initScriptPath;
+        return StringUtils.defaultIfEmpty(this.initScriptPath, "");
     }
 
     public String getDatabaseName() {
 
-        return this.databaseName;
+        return StringUtils.defaultIfEmpty(this.databaseName, DEFAULT_DATABASE_NAME);
     }
 
     public String getUsername() {
 
-        return this.username;
+        return StringUtils.defaultIfEmpty(this.username, DEFAULT_USERNAME);
     }
 
     public String getPassword() {
 
-        return this.password;
+        return StringUtils.defaultIfEmpty(this.password, DEFAULT_PASSWORD);
     }
 
     public Result executeStatement(final String statement) {
 
-        return DatabaseController.getInstance().executeStatement(statement);
+        return this.databaseController.executeStatement(statement);
     }
 }

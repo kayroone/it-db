@@ -1,8 +1,9 @@
 package application.database;
 
+import application.IntegrationTestDatabase;
+import application.container.DatabaseContainer;
 import domain.result.Result;
 import net.sf.jsqlparser.JSQLParserException;
-import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,24 +13,24 @@ public class DatabaseController {
     private static DatabaseController INSTANCE;
 
     private DatabaseConnectionPool connectionPool;
-    private JdbcDatabaseContainer container;
+    private DatabaseContainer container;
 
-    private DatabaseController(final JdbcDatabaseContainer container) {
+    private DatabaseController(final IntegrationTestDatabase config) {
 
-        this.container = container;
-        this.connectionPool = new DatabaseConnectionPool(container);
+        this.container = new DatabaseContainer(config);
+        this.connectionPool = container.getConnectionPool();
     }
 
-    public static DatabaseController getInstance() {
+    public static DatabaseController createInstance(IntegrationTestDatabase config) {
+
+        if (INSTANCE == null) {
+            INSTANCE = new DatabaseController(config);
+        }
 
         return INSTANCE;
     }
 
-    public static DatabaseController newInstance(final JdbcDatabaseContainer container) {
-
-        if (INSTANCE == null) {
-            INSTANCE = new DatabaseController(container);
-        }
+    public static DatabaseController getInstance() {
 
         return INSTANCE;
     }
@@ -51,8 +52,8 @@ public class DatabaseController {
 
     public void shutdownDatabase() {
 
-        if (this.container.isRunning()) {
-            this.container.stop();
+        if (this.container.getContainer().isRunning()) {
+            this.container.getContainer().stop();
         }
 
         INSTANCE = null;
@@ -63,7 +64,8 @@ public class DatabaseController {
         return this.connectionPool.executeStatement(statement);
     }
 
-    public void executeStatement(final String statement, final Connection connection) throws SQLException, JSQLParserException {
+    public void executeStatement(final String statement, final Connection connection)
+            throws SQLException, JSQLParserException {
 
         this.connectionPool.executeStatement(statement, connection);
     }

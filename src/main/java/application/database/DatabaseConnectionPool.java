@@ -24,26 +24,28 @@ public class DatabaseConnectionPool {
     private static final String TRUNCATE_CASCADE_STATEMENT = "TRUNCATE TABLE %s CASCADE";
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseController.class);
+
+    private final JdbcDatabaseContainer container;
     private HikariDataSource dataSource;
 
     public DatabaseConnectionPool(final JdbcDatabaseContainer container) {
 
+        this.container = container;
+    }
+
+    public void initConnectionPool() {
+
         HikariConfig hikariConfig = new HikariConfig();
 
-        hikariConfig.setJdbcUrl(container.getJdbcUrl());
-        hikariConfig.setUsername(container.getUsername());
-        hikariConfig.setPassword(container.getPassword());
+        hikariConfig.setJdbcUrl(this.container.getJdbcUrl());
+        hikariConfig.setUsername(this.container.getUsername());
+        hikariConfig.setPassword(this.container.getPassword());
 
         hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
         this.dataSource = new HikariDataSource(hikariConfig);
-    }
-
-    public Connection getConnection() throws SQLException {
-
-        return dataSource.getConnection();
     }
 
     public void closeConnection() {
@@ -73,8 +75,11 @@ public class DatabaseConnectionPool {
                 result.addRow(values);
             }
 
-        } catch (SQLException | JSQLParserException e) {
-            LOG.error("Cleanup error. Failed to fetch table names: {}", e.getMessage());
+        } catch (JSQLParserException e) {
+            LOG.error("Failed to parse SQL statement. Check syntax of statement '{}'. " +
+                    "Error message: {}", query, e.getMessage());
+        } catch (SQLException e) {
+            LOG.error("Failed to parse result set: {}", e.getMessage());
         }
 
         return result;
@@ -85,7 +90,7 @@ public class DatabaseConnectionPool {
      * <p>
      * WARN: This method does not close the given database connection!
      *
-     * @param query        The SQL query as string.
+     * @param query      The SQL query as string.
      * @param connection A active database connection.
      * @return {@link ResultSet} containing the query rows if any.
      * @throws JSQLParserException For invalid SQL syntax.
@@ -102,6 +107,9 @@ public class DatabaseConnectionPool {
         return preparedStatement.getResultSet();
     }
 
+    /**
+     * Get all table names from the corresponding database and perform a TRUNCATE CASCADE statement on each table.
+     */
     public void cleanDatabase() {
 
         ArrayList<String> tableNames = new ArrayList<>();
@@ -125,5 +133,10 @@ public class DatabaseConnectionPool {
         } catch (SQLException | JSQLParserException e) {
             LOG.error("Cleanup error. Failed to fetch table names: {}", e.getMessage());
         }
+    }
+
+    public Connection getConnection() throws SQLException {
+
+        return dataSource.getConnection();
     }
 }

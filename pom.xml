@@ -17,17 +17,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <version.postgres>42.2.8</version.postgres>
+        <version.postgres>42.2.19.jre7</version.postgres>
+        <version.mysql>8.0.23</version.mysql>
         <version.cdi-api>2.0.SP1</version.cdi-api>
-        <version.apache-commons-lang>3.9</version.apache-commons-lang>
-        <version.testcontainers>1.12.3</version.testcontainers>
-        <version.junit>5.6.0-M1</version.junit>
-        <version.jsql-parser>3.1</version.jsql-parser>
-        <version.assertj>3.14.0</version.assertj>
-        <version.mockito>3.1.0</version.mockito>
-        <version.mockito-junit-5>2.23.0</version.mockito-junit-5>
-        <version.hibernate-validator>6.1.0.Final</version.hibernate-validator>
-        <version.hikari-db-connection-pool>3.4.1</version.hikari-db-connection-pool>
+        <version.apache-commons-lang>3.11</version.apache-commons-lang>
+        <version.testcontainers>1.15.2</version.testcontainers>
+        <version.junit>5.8.0-M1</version.junit>
+        <version.jsql-parser>4.0</version.jsql-parser>
+        <version.assertj>3.19.0</version.assertj>
+        <version.mockito>3.8.0</version.mockito>
+        <version.mockito-junit-5>3.8.0</version.mockito-junit-5>
+        <version.hibernate-validator>7.0.1.Final</version.hibernate-validator>
+        <version.hikari-db-connection-pool>4.0.2</version.hikari-db-connection-pool>
 
         <version.maven.versions.plugin>2.7</version.maven.versions.plugin>
         <version.surefire-plugin>3.0.0-M3</version.surefire-plugin>
@@ -38,6 +39,11 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${version.postgres}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${version.mysql}</version>
         </dependency>
         <dependency>
             <groupId>javax.enterprise</groupId>
