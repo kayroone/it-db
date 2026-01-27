@@ -24,7 +24,7 @@
         <version.testcontainers>1.15.2</version.testcontainers>
         <version.junit>5.8.0-M1</version.junit>
         <version.jsql-parser>4.0</version.jsql-parser>
-        <version.assertj>3.19.0</version.assertj>
+        <version.assertj>3.27.7</version.assertj>
         <version.mockito>3.8.0</version.mockito>
         <version.mockito-junit-5>3.8.0</version.mockito-junit-5>
         <version.hibernate-validator>7.0.1.Final</version.hibernate-validator>
