@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <version.postgres>42.3.9</version.postgres>
+        <version.postgres>42.7.11</version.postgres>
         <version.mysql>8.0.23</version.mysql>
         <version.cdi-api>2.0.SP1</version.cdi-api>
         <version.apache-commons-lang>3.11</version.apache-commons-lang>
